@@ -1,0 +1,996 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --secondary-color: #f39c12;
+            --background-color: #f4f6f9;
+            --text-color: #333333;
+            --card-background: #ffffff;
+            --delete-color: #e74c3c;
+            --delete-dark: #c0392b;
+            --success-color: #2ecc71;
+            --success-dark: #27ae60;
+            --view-color: #3498db;
+            --view-dark: #2980b9;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+            position: relative;
+        }
+        
+        h1, h2 {
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.8em;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-top: 0;
+            padding-right: 60px;
+        }
+        
+        h2 {
+            color: var(--text-color);
+            font-size: 2em;
+            font-weight: 600;
+            text-align: left;
+        }
+        
+        .card {
+            background-color: var(--card-background);
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            padding: 40px;
+            margin-bottom: 30px;
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button i {
+            margin-right: 8px;
+        }
+        
+        .back-button {
+            background-color: var(--view-color);
+        }
+        
+        .back-button:hover {
+            background-color: var(--view-dark);
+        }
+
+        .savedoc-btn {
+            background-color: var(--success-color);
+        }
+        
+        .savedoc-btn:hover {
+            background-color: var(--success-dark);
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: var(--transition);
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        input:focus, textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        .document-item {
+            background-color: var(--card-background);
+            border: 1px solid #e0e0e0;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: var(--transition);
+        }
+        
+        .document-item:hover {
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .document-item input[type="checkbox"] {
+            margin-right: 15px;
+            width: 20px;
+            height: 20px;
+            display: none;
+        }
+        
+        .delete-mode .document-item input[type="checkbox"] {
+            display: inline-block;
+        }
+        
+        .document-title {
+            flex-grow: 1;
+            text-align: left;
+            margin-right: 10px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 500;
+            font-size: 1.1em;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            max-width: 100%;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+        
+        .view-button {
+            background-color: var(--view-color);
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .view-button:hover {
+            background-color: var(--view-dark);
+            transform: translateY(-2px);
+        }
+        
+        .page {
+            display: none;
+            animation: fadeIn 0.5s;
+            padding-top: 20px;
+        }
+        
+        .page.active {
+            display: block;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .delete-button-group {
+            display: none;
+        }
+        
+        .delete-button-group.active {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .add-document-btn {
+            background-color: var(--success-color);
+        }
+        
+        .add-document-btn:hover {
+            background-color: var(--success-dark);
+        }
+        
+        .confirm-delete-btn {
+            background-color: var(--delete-color);
+        }
+        
+        .confirm-delete-btn:hover {
+            background-color: var(--delete-dark);
+        }
+        
+        #toggleDeleteBtn {
+            background-color: var(--delete-color);
+        }
+        
+        #toggleDeleteBtn:hover {
+            background-color: var(--delete-dark);
+        }
+        
+        .edit-mode .view-only {
+            display: none;
+        }
+
+        .view-mode .edit-only {
+            display: none;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .download-btn {
+            background-color: var(--success-color);
+        }
+
+        .download-btn:hover {
+            background-color: var(--success-dark);
+        }
+
+        .edit-btn {
+            background-color: var(--secondary-color);
+        }
+
+        .edit-btn:hover {
+            background-color: #e67e22;
+        }
+
+        .save-btn {
+            background-color: var(--secondary-color);
+        }
+
+        .save-btn:hover {
+            background-color: #e67e22;
+        }
+
+        #profilePage {
+            text-align: center;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 20px;
+            padding: 60px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .profile-header {
+            position: relative;
+            margin-bottom: 80px;
+        }
+
+        .profile-cover {
+            height: 250px;
+            background: linear-gradient(45deg, #3498db, #8e44ad);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .profile-picture {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 6px solid white;
+            overflow: hidden;
+            position: absolute;
+            bottom: -90px;
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-picture img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .user-info {
+            margin-top: 100px;
+        }
+
+        .user-name {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: var(--text-color);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .user-rank {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 30px;
+            display: inline-block;
+            padding: 8px 20px;
+            background-color: rgba(52, 152, 219, 0.1);
+            border-radius: 25px;
+        }
+
+        .user-stats {
+            display: flex;
+            justify-content: center;
+            gap: 50px;
+            margin-bottom: 40px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            font-size: 1em;
+            color: var(--text-color);
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .user-bio {
+            max-width: 600px;
+            margin: 0 auto 40px;
+            line-height: 1.8;
+            color: var(--text-color);
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .profile-actions {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .profile-actions button {
+            padding: 12px 25px;
+            border-radius: 30px;
+            font-size: 1.1em;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+
+        .profile-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 70px;
+            height: 70px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            transition: var(--transition);
+        }
+
+        .profile-icon:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        #documentListPage .profile-icon {
+            display: flex;
+        }
+
+        #documentListPage {
+            position: relative;
+        }
+
+        .profile-icon img {
+            width: 80%;
+            height: 80%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .card {
+                padding: 30px;
+            }
+            
+            .button-container {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .button-container button {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            h1 {
+                font-size: 2.2em;
+            }
+
+            h2 {
+                font-size: 1.8em;
+            }
+
+            .user-name {
+                font-size: 2em;
+            }
+
+            .user-rank {
+                font-size: 1.1em;
+            }
+
+            .user-stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .profile-picture {
+                width: 150px;
+                height: 150px;
+                bottom: -75px;
+            }
+
+            #profilePage {
+                padding: 40px 20px;
+            }
+        }
+
+        #docContent {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: pre-wrap;
+            max-width: 100%;
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+            font-size: 1.1em;
+            line-height: 1.6;
+            margin-top: 20px;
+        }
+
+        .document-item {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            display: flex;
+            align-items: flex-start;
+            padding: 15px 20px;
+            transition: var(--transition);
+        }
+
+        .document-title {
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            white-space: normal;
+            text-overflow: initial;
+            max-width: 100%;
+            font-weight: 500;
+            color: var(--primary-color);
+        }
+
+        .document-meta {
+            font-size: 0.9em;
+            color: #777;
+            margin-top: 5px;
+        }
+
+        .document-actions {
+            margin-left: auto;
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1.2em;
+            color: var(--primary-color);
+            transition: var(--transition);
+        }
+
+        .icon-button:hover {
+            color: var(--primary-dark);
+            transform: scale(1.1);
+        }
+
+        .search-container {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 20px 15px 45px;
+            border: 1px solid #e0e0e0;
+            border-radius: 30px;
+            font-size: 1em;
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 35%;
+            transform: translateY(-50%);
+            color: #777;
+        }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        
+        <!-- First Page: Document List -->
+        <div id="documentListPage" class="page active card">
+            <div class="profile-icon" onclick="showPage('profilePage')">
+                <img src="https://m.media-amazon.com/images/M/MV5BOTc4OTgxODEyNV5BMl5BanBnXkFtZTgwNTA1OTEzNjE@._V1_QL75_UY281_CR87,0,500,281_.jpg" alt="Profile">
+            </div>
+            <h1>Document Management System</h1>
+            <div class="search-container">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search documents...">
+            </div>
+            <h2>All Documents</h2>
+            <div id="documentList"></div>
+            <div class="button-container">
+                <button onclick="showPage('createDocumentPage')" class="add-document-btn"><i class="fas fa-plus"></i> ADD DOCUMENT</button>
+                <div class="delete-button-group" id="deleteButtonGroup">
+                    <button onclick="deleteSelectedDocuments()" class="confirm-delete-btn"><i class="fas fa-trash"></i> CONFIRM DELETE</button>
+                    <button onclick="toggleDeleteMode()" class="cancel-delete-btn"><i class="fas fa-times"></i> CANCEL</button>
+                </div>
+                <button onclick="toggleDeleteMode()" id="toggleDeleteBtn"><i class="fas fa-trash-alt"></i> Delete Documents</button>
+            </div>
+        </div>
+
+        <!-- Second Page: Create Document -->
+        <div id="createDocumentPage" class="page card">
+            <h2>Create New Document</h2>
+            <input type="text" id="topicInput" placeholder="Enter topic">
+            <input type="text" id="writerInput" placeholder="Enter writer">
+            <textarea id="contentInput" placeholder="Enter content" rows="8"></textarea>
+            <div class="button-container">
+                <button class="back-button" onclick="handleBack()"><i class="fas fa-arrow-left"></i> Back</button>
+                <button class="savedoc-btn" onclick="createDocument()"><i class="fas fa-save"></i> Save Document</button>
+            </div>
+        </div>
+
+        <!-- Third Page: View Document -->
+        <div id="viewDocumentPage" class="page card view-mode">
+            <h2>Document Details</h2>
+            <div id="documentDetails">
+                <h3 id="docTitle" class="view-only"></h3>
+                <p class="view-only document-meta"><em>Written by: <span id="docWriter"></span></em></p>
+                <div id="docContent" class="view-only"></div>
+                <input type="text" id="editTitle" class="edit-only" placeholder="Enter title">
+                <input type="text" id="editWriter" class="edit-only" placeholder="Enter writer">
+                <textarea id="editContent" class="edit-only" rows="8" placeholder="Enter content"></textarea>
+            </div>
+            <div class="button-group">
+                <button onclick="showPage('documentListPage')" class="back-button"><i class="fas fa-arrow-left"></i> Back</button>
+                <button onclick="toggleEditMode()" class="edit-btn"><i class="fas fa-edit"></i> Edit</button>
+                <button onclick="saveEdit()" class="save-btn" style="display: none;"><i class="fas fa-save"></i> Save</button>
+                <button onclick="downloadDocument()" class="download-btn"><i class="fas fa-download"></i> Download</button>
+            </div>
+        </div>
+
+        <!-- Fourth Page: Profile Page -->
+        <div id="profilePage" class="page card">
+            <div class="profile-header">
+                <div class="profile-cover"></div>
+                <div class="profile-picture">
+                    <img src="https://m.media-amazon.com/images/M/MV5BOTc4OTgxODEyNV5BMl5BanBnXkFtZTgwNTA1OTEzNjE@._V1_QL75_UY281_CR87,0,500,281_.jpg" alt="User Profile Picture">
+                </div>
+            </div>
+            <div class="user-info">
+                <h2 class="user-name"><span>Dino</span></h2>
+                <span class="user-rank">Rank: King of Dinosaur</span>
+                <p class="user-bio">Passionate about creating and managing documents. Always looking for new ways to organize information and improve productivity.</p>
+                <div class="profile-actions">
+                    <button onclick="showPage('documentListPage')" class="back-button"><i class="fas fa-file-alt"></i> Back to Documents</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let documents = [];
+        let currentDraft = {};
+        let deleteMode = false;
+        let currentEditIndex = -1;
+
+        // Fetch all documents
+        async function fetchDocuments() {
+            try {
+                const response = await fetch('http://localhost:3001/api/documents');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                documents = await response.json();
+                updateDocumentList();
+            } catch (error) {
+                console.error('Error fetching documents:', error);
+                showError('Failed to load documents. Please try again.');
+            }
+        }
+
+        // Create a new document
+        async function createDocument() {
+            const topic = document.getElementById('topicInput').value;
+            const writer = document.getElementById('writerInput').value;
+            const content = document.getElementById('contentInput').value;
+
+            if (topic && writer && content) {
+                try {
+                    const response = await fetch('http://localhost:3001/api/documents', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ topic, writer, content }),
+                    });
+                    if (!response.ok) {
+                        throw new Error('Failed to create document');
+                    }
+                    const newDocument = await response.json();
+                    documents.push(newDocument);
+                    updateDocumentList();
+                    clearInputs();
+                    showPage('documentListPage');
+                } catch (error) {
+                    console.error('Error creating document:', error);
+                    showError('Failed to create document. Please try again.');
+                }
+            } else {
+                showError('Please fill in all fields');
+            }
+        }
+
+        // Update an existing document
+        async function saveEdit() {
+            const editedDoc = {
+                topic: document.getElementById('editTitle').value,
+                writer: document.getElementById('editWriter').value,
+                content: document.getElementById('editContent').value
+            };
+
+            if (editedDoc.topic && editedDoc.writer && editedDoc.content) {
+                try {
+                    const response = await fetch(`http://localhost:3001/api/documents/${documents[currentEditIndex].id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(editedDoc),
+                    });
+                    if (!response.ok) {
+                        throw new Error('Failed to update document');
+                    }
+                    const updatedDocument = await response.json();
+                    documents[currentEditIndex] = updatedDocument;
+                    viewDocument(currentEditIndex);
+                    updateDocumentList();
+                    showPage('documentListPage');
+                } catch (error) {
+                    console.error('Error updating document:', error);
+                    showError('Failed to update document. Please try again.');
+                }
+            } else {
+                showError('Please fill in all fields');
+            }
+        }
+
+        // Delete selected documents
+        async function deleteSelectedDocuments() {
+            const selectedDocs = getSelectedDocuments();
+            if (selectedDocs.length > 0) {
+                try {
+                    for (const doc of selectedDocs) {
+                        const response = await fetch(`http://localhost:3001/api/documents/${doc.id}`, {
+                            method: 'DELETE',
+                        });
+                        if (!response.ok) {
+                            throw new Error('Failed to delete document');
+                        }
+                    }
+                    documents = documents.filter(doc => !selectedDocs.includes(doc));
+                    updateDocumentList();
+                    showPage('documentListPage');
+                } catch (error) {
+                    console.error('Error deleting documents:', error);
+                    showError('Failed to delete documents. Please try again.');
+                }
+            } else {
+                showError('No documents selected');
+            }
+        }
+
+        // Helper function to show errors
+        function showError(message) {
+            alert(message);  // For now, we'll use alert. In a production app, you'd want a more user-friendly error display.
+        }
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+                page.style.display = 'none';
+            });
+            const newPage = document.getElementById(pageId);
+            newPage.classList.add('active');
+            newPage.style.display = 'block';
+            newPage.style.animation = 'none';
+            newPage.offsetHeight; // Trigger reflow
+            newPage.style.animation = null;
+            
+            if (pageId === 'createDocumentPage') {
+                loadDraft();
+            }
+            if (pageId === 'documentListPage') {
+                exitDeleteMode();
+            }
+        }
+
+        function updateDocumentList(docs = documents) {
+            const list = document.getElementById('documentList');
+            list.innerHTML = '';
+            docs.forEach((doc, index) => {
+                const item = document.createElement('div');
+                item.className = 'document-item';
+                item.innerHTML = `
+                    <input type="checkbox" data-index="${index}">
+                    <div>
+                        <div class="document-title">${doc.topic}</div>
+                        <div class="document-meta">By ${doc.writer}</div>
+                    </div>
+                    <div class="document-actions">
+                        <button onclick="viewDocument(${index})" class="icon-button view-button" title="View"><i class="fas fa-eye"></i></button>
+                        <button onclick="editDocument(${index})" class="icon-button edit-button" title="Edit"><i class="fas fa-edit"></i></button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function toggleDeleteMode() {
+            deleteMode = !deleteMode;
+            const deleteButtonGroup = document.getElementById('deleteButtonGroup');
+            const toggleDeleteBtn = document.getElementById('toggleDeleteBtn');
+            const documentListPage = document.getElementById('documentListPage');
+
+            if (deleteMode) {
+                deleteButtonGroup.classList.add('active');
+                toggleDeleteBtn.style.display = 'none';
+                documentListPage.classList.add('delete-mode');
+            } else {
+                deleteButtonGroup.classList.remove('active');
+                toggleDeleteBtn.style.display = 'inline-block';
+                documentListPage.classList.remove('delete-mode');
+                // Uncheck all checkboxes when exiting delete mode
+                document.querySelectorAll('.document-item input[type="checkbox"]').forEach(cb => cb.checked = false);
+            }
+        }
+
+        function exitDeleteMode() {
+            if (deleteMode) {
+                toggleDeleteMode();
+            }
+        }
+
+        function getSelectedDocuments() {
+            const checkboxes = document.querySelectorAll('.document-item input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => documents[parseInt(cb.getAttribute('data-index'))]);
+        }
+
+        function viewDocument(index) {
+            const doc = documents[index];
+            currentEditIndex = index;
+            document.getElementById('docTitle').textContent = doc.topic;
+            document.getElementById('docWriter').textContent = doc.writer;
+            document.getElementById('docContent').textContent = doc.content;
+            document.getElementById('editTitle').value = doc.topic;
+            document.getElementById('editWriter').value = doc.writer;
+            document.getElementById('editContent').value = doc.content;
+            showPage('viewDocumentPage');
+            setViewMode();
+        }
+
+        function editDocument(index) {
+            viewDocument(index);
+            toggleEditMode();
+        }
+
+        function clearInputs() {
+            document.getElementById('topicInput').value = '';
+            document.getElementById('writerInput').value = '';
+            document.getElementById('contentInput').value = '';
+        }
+
+        function handleBack() {
+            const topic = document.getElementById('topicInput').value;
+            const writer = document.getElementById('writerInput').value;
+            const content = document.getElementById('contentInput').value;
+
+            if (topic || writer || content) {
+                const saveDraft = confirm("Do you want to save your draft before going back?");
+                if (saveDraft) {
+                    currentDraft = { topic, writer, content };
+                    alert("Draft saved. You can continue editing it later.");
+                } else {
+                    currentDraft = {};
+                }
+            }
+            showPage('documentListPage');
+        }
+
+        function loadDraft() {
+            if (currentDraft.topic || currentDraft.writer || currentDraft.content) {
+                document.getElementById('topicInput').value = currentDraft.topic || '';
+                document.getElementById('writerInput').value = currentDraft.writer || '';
+                document.getElementById('contentInput').value = currentDraft.content || '';
+            }
+        }
+
+        function toggleEditMode() {
+            const viewDocumentPage = document.getElementById('viewDocumentPage');
+            const editBtn = document.querySelector('.edit-btn');
+            const saveBtn = document.querySelector('.save-btn');
+            
+            if (viewDocumentPage.classList.contains('view-mode')) {
+                viewDocumentPage.classList.remove('view-mode');
+                viewDocumentPage.classList.add('edit-mode');
+                editBtn.style.display = 'none';
+                saveBtn.style.display = 'inline-block';
+            } else {
+                setViewMode();
+            }
+        }
+
+        function setViewMode() {
+            const viewDocumentPage = document.getElementById('viewDocumentPage');
+            const editBtn = document.querySelector('.edit-btn');
+            const saveBtn = document.querySelector('.save-btn');
+            
+            viewDocumentPage.classList.remove('edit-mode');
+            viewDocumentPage.classList.add('view-mode');
+            editBtn.style.display = 'inline-block';
+            saveBtn.style.display = 'none';
+
+            // Update the view-only elements with the edited content
+            document.getElementById('docTitle').textContent = document.getElementById('editTitle').value;
+            document.getElementById('docWriter').textContent = document.getElementById('editWriter').value;
+            document.getElementById('docContent').textContent = document.getElementById('editContent').value;
+        }
+
+        function downloadDocument() {
+            const doc = documents[currentEditIndex];
+            const content = `Topic: ${doc.topic}\nWriter: ${doc.writer}\n\n${doc.content}`;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${doc.topic.replace(/\s+/g, '_')}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Initialize the document list
+        document.addEventListener('DOMContentLoaded', fetchDocuments);
+
+        // Add search functionality
+        document.querySelector('.search-input').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredDocuments = documents.filter(doc => 
+                doc.topic.toLowerCase().includes(searchTerm) || 
+                doc.writer.toLowerCase().includes(searchTerm) || 
+                doc.content.toLowerCase().includes(searchTerm)
+            );
+            updateDocumentList(filteredDocuments);
+        });
+
+        function updateDocumentList(docs = documents) {
+            const list = document.getElementById('documentList');
+            list.innerHTML = '';
+            docs.forEach((doc, index) => {
+                const item = document.createElement('div');
+                item.className = 'document-item';
+                item.innerHTML = `
+                    <input type="checkbox" data-index="${index}">
+                    <div>
+                        <div class="document-title">${doc.topic}</div>
+                        <div class="document-meta">By ${doc.writer}</div>
+                    </div>
+                    <div class="document-actions">
+                        <button onclick="viewDocument(${index})" class="icon-button view-button" title="View"><i class="fas fa-eye"></i></button>
+                        <button onclick="editDocument(${index})" class="icon-button edit-button" title="Edit"><i class="fas fa-edit"></i></button>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+    </script>
+</body>
+</html>
